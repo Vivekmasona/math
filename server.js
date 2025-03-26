@@ -4,6 +4,18 @@ const math = require("mathjs");
 const app = express();
 app.use(express.json());
 
+// Predefined trigonometric values
+const trigTable = {
+    "sin0": "0", "cos0": "1", "tan0": "0", "csc0": "~", "sec0": "1", "cot0": "~",
+    "sin30": "1/2", "cos30": "√3/2", "tan30": "1/√3", "csc30": "2", "sec30": "2/√3", "cot30": "√3",
+    "sin45": "1/√2", "cos45": "1/√2", "tan45": "1", "csc45": "√2", "sec45": "√2", "cot45": "1",
+    "sin60": "√3/2", "cos60": "1/2", "tan60": "√3", "csc60": "2/√3", "sec60": "2", "cot60": "1/√3",
+    "sin90": "1", "cos90": "0", "tan90": "~", "csc90": "1", "sec90": "~", "cot90": "0",
+    "sin120": "√3/2", "cos120": "-1/2", "tan120": "-√3", "csc120": "2/√3", "sec120": "-2", "cot120": "-1/√3",
+    "sin135": "1/√2", "cos135": "-1/√2", "tan135": "-1", "csc135": "√2", "sec135": "-√2", "cot135": "-1",
+    "sin150": "1/2", "cos150": "-√3/2", "tan150": "-1/√3", "csc150": "2", "sec150": "-2/√3", "cot150": "-√3"
+};
+
 // Function to format math expressions properly
 function formatExpression(expression) {
     return expression
@@ -38,8 +50,28 @@ app.get("/calculate", (req, res) => {
     }
 });
 
-// API for trigonometry calculations
+// API for trigonometry calculations (Predefined values)
 app.get("/trigonometry", (req, res) => {
+    let { func } = req.query;
+    if (!func) {
+        return res.status(400).json({ error: "Function required", destination: req.originalUrl });
+    }
+
+    func = func.replace("°", ""); // Remove ° symbol if present
+
+    if (trigTable[func]) {
+        res.json({
+            destination: req.originalUrl,
+            function: func,
+            result: trigTable[func]
+        });
+    } else {
+        res.status(400).json({ error: "Invalid trigonometric function or value", destination: req.originalUrl });
+    }
+});
+
+// API for dynamic trigonometry calculations
+app.get("/trig", (req, res) => {
     const { func, value } = req.query;
     if (!func || !value) {
         return res.status(400).json({ error: "Function and value required", destination: req.originalUrl });
@@ -58,7 +90,7 @@ app.get("/trigonometry", (req, res) => {
     }
 });
 
-// API for algebra (quadratic formula)
+// API for solving quadratic equations
 app.get("/quadratic", (req, res) => {
     let { a, b, c } = req.query;
     if (!a || !b || !c) {
@@ -81,7 +113,7 @@ app.get("/quadratic", (req, res) => {
     }
 });
 
-// API for circle area
+// API for calculating the area of a circle
 app.get("/circle", (req, res) => {
     const { radius } = req.query;
     if (!radius) {
