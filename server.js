@@ -4,25 +4,29 @@ const math = require("mathjs");
 const app = express();
 app.use(express.json());
 
-// Function to fix math expressions
+// Function to format math expressions properly
 function formatExpression(expression) {
     return expression
-        .replace(/√(\d+)/g, "sqrt($1)")  // Replace √2 with sqrt(2)
-        .replace(/×/g, "*")             // Replace × with *
-        .replace(/÷/g, "/")             // Replace ÷ with /
-        .replace(/π/g, "pi");           // Replace π with pi (for circles)
+        .replace(/(\d)\s+(\d)/g, "$1+$2") // Convert "2 2" → "2+2"
+        .replace(/(\d)\+(\d)/g, "$1+$2")  // Convert "2+2" → "2+2" (Ensure format)
+        .replace(/√(\d+)/g, "sqrt($1)")   // Replace √2 with sqrt(2)
+        .replace(/×/g, "*")               // Replace × with *
+        .replace(/÷/g, "/")               // Replace ÷ with /
+        .replace(/π/g, "pi")              // Replace π with pi
+        .replace(/%/g, "/100");           // Convert percentage
 }
 
 // API to solve any math expression
 app.get("/calculate", (req, res) => {
     let { expression } = req.query;
     if (!expression) {
-        return res.status(400).json({ error: "Expression required" });
+        return res.status(400).json({ error: "Expression required", destination: req.originalUrl });
     }
 
     try {
-        expression = formatExpression(expression); // Format expression
-        const result = math.evaluate(expression);  // Solve expression
+        expression = decodeURIComponent(expression); // Decode URL encoding
+        expression = formatExpression(expression);   // Format expression
+        const result = math.evaluate(expression);    // Solve expression
 
         res.json({
             destination: req.originalUrl,
