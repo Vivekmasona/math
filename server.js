@@ -23,9 +23,14 @@ app.get("/calculate", (req, res) => {
     try {
         expression = formatExpression(expression); // Format expression
         const result = math.evaluate(expression);  // Solve expression
-        res.json({ expression, result });
+
+        res.json({
+            destination: req.originalUrl,
+            expression,
+            result
+        });
     } catch (err) {
-        res.status(400).json({ error: "Invalid expression" });
+        res.status(400).json({ error: "Invalid expression", destination: req.originalUrl });
     }
 });
 
@@ -33,14 +38,19 @@ app.get("/calculate", (req, res) => {
 app.get("/trigonometry", (req, res) => {
     const { func, value } = req.query;
     if (!func || !value) {
-        return res.status(400).json({ error: "Function and value required" });
+        return res.status(400).json({ error: "Function and value required", destination: req.originalUrl });
     }
 
     try {
         const result = math[func](math.unit(Number(value), "deg"));
-        res.json({ function: func, value, result });
+        res.json({
+            destination: req.originalUrl,
+            function: func,
+            value,
+            result
+        });
     } catch (err) {
-        res.status(400).json({ error: "Invalid trigonometric function" });
+        res.status(400).json({ error: "Invalid trigonometric function", destination: req.originalUrl });
     }
 });
 
@@ -48,7 +58,7 @@ app.get("/trigonometry", (req, res) => {
 app.get("/quadratic", (req, res) => {
     let { a, b, c } = req.query;
     if (!a || !b || !c) {
-        return res.status(400).json({ error: "a, b, and c values required" });
+        return res.status(400).json({ error: "a, b, and c values required", destination: req.originalUrl });
     }
 
     try {
@@ -57,13 +67,13 @@ app.get("/quadratic", (req, res) => {
         c = Number(c);
         const discriminant = math.pow(b, 2) - 4 * a * c;
         if (discriminant < 0) {
-            return res.json({ message: "No real solutions" });
+            return res.json({ message: "No real solutions", destination: req.originalUrl });
         }
         const root1 = (-b + math.sqrt(discriminant)) / (2 * a);
         const root2 = (-b - math.sqrt(discriminant)) / (2 * a);
-        res.json({ root1, root2 });
+        res.json({ destination: req.originalUrl, root1, root2 });
     } catch (err) {
-        res.status(400).json({ error: "Invalid quadratic equation" });
+        res.status(400).json({ error: "Invalid quadratic equation", destination: req.originalUrl });
     }
 });
 
@@ -71,14 +81,14 @@ app.get("/quadratic", (req, res) => {
 app.get("/circle", (req, res) => {
     const { radius } = req.query;
     if (!radius) {
-        return res.status(400).json({ error: "Radius required" });
+        return res.status(400).json({ error: "Radius required", destination: req.originalUrl });
     }
 
     try {
         const area = math.pi * math.pow(Number(radius), 2);
-        res.json({ radius, area });
+        res.json({ destination: req.originalUrl, radius, area });
     } catch (err) {
-        res.status(400).json({ error: "Invalid radius" });
+        res.status(400).json({ error: "Invalid radius", destination: req.originalUrl });
     }
 });
 
