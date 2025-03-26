@@ -1,10 +1,12 @@
 const express = require("express");
+const cors = require("cors");
 const math = require("mathjs");
 
 const app = express();
+app.use(cors());
 app.use(express.json());
 
-// Predefined trigonometric values
+// 🎯 **Predefined Trigonometric Values**
 const trigTable = {
     "sin0": "0", "cos0": "1", "tan0": "0", "csc0": "~", "sec0": "1", "cot0": "~",
     "sin30": "1/2", "cos30": "√3/2", "tan30": "1/√3", "csc30": "2", "sec30": "2/√3", "cot30": "√3",
@@ -13,28 +15,28 @@ const trigTable = {
     "sin90": "1", "cos90": "0", "tan90": "~", "csc90": "1", "sec90": "~", "cot90": "0"
 };
 
-// Function to format math expressions properly
+// 🎯 **Math Expression Formatter**
 function formatExpression(expression) {
     return expression
-        .replace(/(\d)\s+(\d)/g, "$1+$2")
-        .replace(/√(\d+)/g, "sqrt($1)")
-        .replace(/×/g, "*")
-        .replace(/÷/g, "/")
-        .replace(/π/g, "pi")
-        .replace(/%/g, "/100");
+        .replace(/(\d)\s+(\d)/g, "$1+$2") // Space ko "+" se replace karo
+        .replace(/√(\d+)/g, "sqrt($1)")   // √ ko sqrt() me convert karo
+        .replace(/×/g, "*")               // × ko * me convert karo
+        .replace(/÷/g, "/")               // ÷ ko / me convert karo
+        .replace(/π/g, "pi")              // π ko pi me convert karo
+        .replace(/%/g, "/100");           // % ko divide by 100 karo
 }
 
-// **Unified Solve API**
+// 🎯 **Universal Math Solver API**
 app.get("/solve", (req, res) => {
     let { query } = req.query;
     if (!query) {
         return res.status(400).json({ error: "Query is required", destination: req.originalUrl });
     }
 
-    query = decodeURIComponent(query).replace("°", ""); // Remove degree symbol if present
+    query = decodeURIComponent(query).replace("°", ""); // ° symbol hataye
 
     try {
-        // 1. Check if it's a predefined trigonometric function
+        // 🔢 **1. Predefined Trigonometric Table Check**
         if (trigTable[query]) {
             return res.json({
                 destination: req.originalUrl,
@@ -44,8 +46,8 @@ app.get("/solve", (req, res) => {
             });
         }
 
-        // 2. Check if it's a dynamic trigonometric function (sin, cos, tan, etc.)
-        const trigMatch = query.match(/(sin|cos|tan|csc|sec|cot)(\d+)/);
+        // 📐 **2. Dynamic Trigonometry Calculation**
+        const trigMatch = query.match(/(sin|cos|tan|csc|sec|cot)(\d+)/);
         if (trigMatch) {
             const func = trigMatch[1];
             const value = parseFloat(trigMatch[2]);
@@ -59,7 +61,7 @@ app.get("/solve", (req, res) => {
             });
         }
 
-        // 3. Check if it's a quadratic equation (ax^2 + bx + c = 0)
+        // 🏀 **3. Quadratic Equation Solver (ax² + bx + c = 0)**
         const quadMatch = query.match(/(-?\d*)x\^2\s*([\+\-]\s*\d*)x\s*([\+\-]\s*\d*)/);
         if (quadMatch) {
             let a = parseFloat(quadMatch[1] || "1");
@@ -81,7 +83,7 @@ app.get("/solve", (req, res) => {
             });
         }
 
-        // 4. Check if it's a circle area calculation (area of circle with radius r)
+        // ⚪ **4. Circle Area Calculation (πr²)**
         const circleMatch = query.match(/area\s*of\s*circle\s*with\s*radius\s*(\d+)/i);
         if (circleMatch) {
             const radius = parseFloat(circleMatch[1]);
@@ -94,7 +96,7 @@ app.get("/solve", (req, res) => {
             });
         }
 
-        // 5. Otherwise, solve it as a general math expression
+        // 🏆 **5. General Math Expression Solver**
         query = formatExpression(query);
         const result = math.evaluate(query);
         return res.json({
@@ -108,7 +110,7 @@ app.get("/solve", (req, res) => {
     }
 });
 
-// Start server
+// 🎯 **Start Server**
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
     console.log(`Universal Solver API running on port ${PORT}`);
