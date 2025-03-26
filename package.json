@@ -1,0 +1,17 @@
+{
+  "name": "calculator-api",
+  "version": "1.0.0",
+  "description": "An advanced calculator API using Node.js and Express",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "vercel-start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "mathjs": "^11.9.0"
+  },
+  "engines": {
+    "node": ">=14"
+  }
+}
